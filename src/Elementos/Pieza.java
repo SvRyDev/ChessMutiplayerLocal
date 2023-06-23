@@ -28,11 +28,13 @@ public class Pieza {
     boolean esBlanco;
     LinkedList<Pieza> listaPiezas;
 
+    ArrayList<Coordenada> movimientosValidos;
+
     public static BufferedImage imgPrincipal;
     public static Image[] imgs;
     public Image fotopieza;
 
-    public Pieza(int corTableroX, int corTableroY, boolean esBlanco, LinkedList<Pieza> listaPiezas ,  String nombre) {
+    public Pieza(int corTableroX, int corTableroY, boolean esBlanco, LinkedList<Pieza> listaPiezas, String nombre) {
 
         this.corTableroX = corTableroX;
         this.corTableroY = corTableroY;
@@ -42,6 +44,7 @@ public class Pieza {
         this.nombre = nombre;
         listaPiezas.add(this);
         this.listaPiezas = listaPiezas;
+        //  this.movimientosValidos = coo;
 
         fotopieza = subirImage();
 
@@ -65,8 +68,9 @@ public class Pieza {
         } catch (IOException ex) {
             Logger.getLogger(Pieza.class.getName()).log(Level.SEVERE, null, ex);
         }
-            int ind = 0;
+        int ind = 0;
         for (Pieza p : listaPiezas) {
+            ind = 0;
             if (p.nombre.equalsIgnoreCase("rey")) {
                 ind = 0;
             }
@@ -92,28 +96,35 @@ public class Pieza {
             //g.drawImage(imgs[ind], p.x, p.y, this);
             fotopieza = imgs[ind];
         }
-        
-        System.out.println("PASO POR EL METODO SUBIRTIMAGE: \n "  + 
-                "Int =  " + ind  +
-                "\nImage = " + fotopieza +
-                "\nListaPieza : " + listaPiezas +
-                "\nNombre = " + nombre + 
-                "\nColeccion = " + imgs[ind]
-                
-        
+
+        System.out.println("PASO POR EL METODO SUBIRTIMAGE: \n "
+                + "Int =  " + ind
+                + "\nImage = " + fotopieza
+                + "\nListaPieza : " + listaPiezas
+                + "\nNombre = " + nombre
+                + "\nColeccion = " + imgs[ind]
         );
-         fotopieza = imgs[ind];
+        fotopieza = imgs[ind];
         return fotopieza;
     }
 
-    public ArrayList<Coordenada> marcarMovimiento(int posicionX, int posicionY) {
-        ArrayList<Coordenada> arrglo = null;
-        return arrglo;
+    public ArrayList<Coordenada> movimiento(int posicionX, int posicionY) {
+        return movimientosValidos;
     }
-    
-    
-    public void mover(int xp, int yp){
-         if (Tablero1.getPiece(xp * 64, yp * 64) != null) {
+
+    public void mover(int xp, int yp) {
+
+        boolean validarMov = false;
+
+        for (Coordenada c : movimientosValidos) {
+            if (xp == c.getX() && yp == c.getY()) {
+                validarMov = true;
+                break;
+            }
+        }
+
+        if (Tablero1.getPiece(xp * 64, yp * 64) != null) {
+
             if (Tablero1.getPiece(xp * 64, yp * 64).esBlanco != esBlanco) {
                 Tablero1.getPiece(xp * 64, yp * 64).asesinar();
 
@@ -121,20 +132,24 @@ public class Pieza {
                 corVentX = this.corTableroX * 64;
                 corVentY = this.corTableroY * 64;
                 System.out.println("No puede matar a su mismo color, no sea Imbecil >:v");
+                System.out.println("Rango de movimiento = " + movimientosValidos);
                 return;
             }
+
         }
-        this.corTableroX = xp;
-        this.corTableroY = yp;
-        corVentX = xp * 64;
-        corVentY = yp * 64;
+        if (validarMov) {
+            this.corTableroX = xp;
+            this.corTableroY = yp;
+            corVentX = xp * 64;
+            corVentY = yp * 64;
+        }
+        corVentX = this.corTableroX * 64;
+        corVentY = this.corTableroY * 64;
+
     }
 
- 
     public void asesinar() {
         listaPiezas.remove(this);
     }
-
-
 
 }

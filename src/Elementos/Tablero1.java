@@ -30,12 +30,16 @@ public class Tablero1 extends javax.swing.JPanel {
 
     static LinkedList<Pieza> ps = new LinkedList<>();
 
+    ArrayList<Coordenada> cooAux = new ArrayList<>();
+
     Pieza piezaAux;
 
+    Alfil Nalfil1 = new Alfil(1, 7, false, ps);
     Torre Btorre1 = new Torre(0, 0, true, ps);
     Torre Ntorre1 = new Torre(7, 0, false, ps);
     Torre Btorre2 = new Torre(7, 7, true, ps);
     Torre Ntorre2 = new Torre(0, 7, false, ps);
+    Reina Breina = new Reina(2, 7, false, ps);
 
     public Tablero1() {
         initComponents();
@@ -63,21 +67,26 @@ public class Tablero1 extends javax.swing.JPanel {
     }
 
     public void movimientosPieza() {
-        for (int i = 0; i < piezaAux.marcarMovimiento(piezaAux.corTableroX, piezaAux.corTableroY).size(); i++) {
-            cuadrados[piezaAux.marcarMovimiento(piezaAux.corTableroX, piezaAux.corTableroY).get(i).x][piezaAux.marcarMovimiento(piezaAux.corTableroX, piezaAux.corTableroY).get(i).y].setColor(Color.black);
-        }
-        repaint();
+        if (piezaAux != null) {
+            cooAux = piezaAux.movimiento(piezaAux.corTableroX, piezaAux.corTableroY);
+            for (int i = 0; i < cooAux.size(); i++) {
+                cuadrados[cooAux.get(i).getX()][cooAux.get(i).getY()].setColor(Color.black);
+            }
+            repaint();
 
-        System.out.println("LA SALIDA DE LA IMAGEN DE TORRE ES  : " + piezaAux.fotopieza);
+            System.out.println("LA SALIDA DE LA IMAGEN DE TORRE ES  : " + piezaAux.fotopieza);
+        }
     }
 
     public void limpiarMovimientos() {
-        for (int i = 0; i < piezaAux.marcarMovimiento(piezaAux.corTableroX, piezaAux.corTableroY).size(); i++) {
-            cuadrados[piezaAux.marcarMovimiento(piezaAux.corTableroX, piezaAux.corTableroY).get(i).x][piezaAux.marcarMovimiento(piezaAux.corTableroX, piezaAux.corTableroY).get(i).y].setColor(new Color(255, 255, 255, 0));
-        }
-        repaint();
+        if (piezaAux != null) {
+            for (int i = 0; i < cooAux.size(); i++) {
+                cuadrados[cooAux.get(i).getX()][cooAux.get(i).getY()].setColor(new Color(255, 255, 252, 0));
+            }
+            repaint();
 
-        System.out.println("LA SALIDA DE LA IMAGEN DE TORRE ES  : " + piezaAux.fotopieza);
+            System.out.println("LA SALIDA DE LA IMAGEN DE TORRE ES  : " + piezaAux.fotopieza);
+        }
     }
 
     @Override
@@ -162,7 +171,7 @@ public class Tablero1 extends javax.swing.JPanel {
     }
 
     public static Pieza getPiece(int x, int y) {
-        Pieza piecita;
+        Pieza piecita = null;
 
         int xp = x / 64;
         int yp = y / 64;
@@ -171,7 +180,18 @@ public class Tablero1 extends javax.swing.JPanel {
 
             if (p.corTableroX == xp && p.corTableroY == yp) {
 
-                piecita = new Torre(p.corTableroX, p.corTableroY, p.esBlanco, p.listaPiezas);
+                switch (p.nombre) {
+                    case "torre":
+                        piecita = new Torre(p.corTableroX, p.corTableroY, p.esBlanco, p.listaPiezas);
+                        break;
+                    case "alfil":
+                        piecita = new Alfil(p.corTableroX, p.corTableroY, p.esBlanco, p.listaPiezas);
+                        break;
+                    case "reina":
+                        piecita = new Reina(p.corTableroX, p.corTableroY, p.esBlanco, p.listaPiezas);
+                        break;
+                }
+
                 p.asesinar();
                 return piecita;
             }
@@ -195,6 +215,7 @@ public class Tablero1 extends javax.swing.JPanel {
             public void mouseReleased(MouseEvent e) {
                 limpiarMovimientos();
                 if (piezaAux != null) {
+                    
                     piezaAux.mover((piezaAux.corVentX + 31) / 64, (piezaAux.corVentY + 31) / 64);
                     System.out.println(piezaAux.corTableroX + ":" + piezaAux.corTableroY);
                     repaint();
@@ -217,9 +238,26 @@ public class Tablero1 extends javax.swing.JPanel {
         addMouseMotionListener(new MouseMotionListener() {
             @Override
             public void mouseDragged(MouseEvent e) {
-                piezaAux.corVentX = e.getX() - dimension/2;
-                piezaAux.corVentY = e.getY() - dimension/2;
-                principal.txtCordenadas.setText("arrastrando:  " + e.getX() + " Y " + e.getY());
+                if (piezaAux != null) {
+                    if (e.getX() >= 512) {
+                        piezaAux.corVentX = 480;
+                    } else if (e.getX() <= 0) {
+                        piezaAux.corVentX = -32;
+                    } else {
+                        piezaAux.corVentX = e.getX() - 32;
+                    }
+
+                    if (e.getY() >= 512) {
+                        piezaAux.corVentY = 480;
+                    } else if (e.getY() <= 0) {
+                        piezaAux.corVentY = -32;
+                    } else {
+                        piezaAux.corVentY = e.getY() - 32;
+                    }
+
+                    principal.txtCordenadas.setText("arrastrando:  " + e.getX() + " Y " + e.getY());
+
+                }
 
                 repaint();
             }
